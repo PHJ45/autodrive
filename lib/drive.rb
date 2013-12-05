@@ -6,21 +6,38 @@ require 'fileutils'
 
 class Executor
   def self.grab_profile(github_name)
-    system ("curl -s https://raw.github.com/#{github_name}/dotfiles/master/.bash_profile > ~/hello.txt")
+    system ("curl -s https://raw.github.com/#{github_name}/drive/master/drive.txt > ~/drive.txt")
 
     if self.correct_download?
       puts "🚘  Thanks for using Drive\n"
       puts "🚘  #{github_name}'s bash_profile is now on your computer"
-      puts "🚘  Type ~/.drive_profile to load it into this window"
+      puts "🚘  Type source ~/.drive.txt to load it into this window"
       puts "🚘  Changes will revert when this window closes"
     else
       puts "Incorrect username. Please try again."
     end
   end
 
+  def create_new_user()
+    puts "Github Username (case-sensitive):"
+    github_username = gets.strip 
+    system("curl -s -u#{github_username} https://api.github.com/user/repos -d '{\"name\":\"drive\"}'")
+    Dir.chdir `echo ~`.chomp
+    system("mkdir drive")
+    system("cp .bash_profile drive/drive.txt")
+    Dir.chdir `echo drive`.chomp
+    system("git init")
+    system("git add .")
+    system("git commit -am 'Add bash_profile to drive repo'")
+    system("git remote add origin git@github.com:#{github_username}/drive.git")
+    system("git push -u origin master")
+  end
+
+
+
   def self.correct_download?
     Dir.chdir `echo ~`.chomp
-    file = File.open('hello.txt', 'r')
+    file = File.open('drive.txt', 'r')
     good_request = true
     file.each_line do |line|
       if line[/Page not found/]
@@ -47,6 +64,7 @@ class Brancher
       ##You didn't enter anything and thus need to provide an argument
     elsif ARGV.first.downcase == "new" && ARGV[1]
       puts "We will create a new drive profile with the name #{ARGV[1]}"
+      Executor. create_new_user(ARGV[1])
     elsif ARGV.first.downcase == "new"
       Executor.new_error_message
     elsif ARGV.first.downcase == "help"

@@ -1,6 +1,5 @@
 #!/bin/env ruby
 # encoding: utf-8
-require 'pry'
 require 'colorize'
 require 'fileutils'
 
@@ -60,14 +59,14 @@ end
 
 class Brancher
   def self.call
+    puts "Welcome to Drive"
     if !ARGV
-      ##You didn't enter anything and thus need to provide an argument
-    elsif ARGV.first.downcase == "new" && ARGV[1]
+    elsif ARGV.first == "new" && ARGV[1]
       puts "We will create a new drive profile with the name #{ARGV[1]}"
       Executor. create_new_user(ARGV[1])
-    elsif ARGV.first.downcase == "new"
+    elsif ARGV.first == "new"
       Executor.new_error_message
-    elsif ARGV.first.downcase == "help"
+    elsif ARGV.first == "help"
       Executor.call_help
     else
       Executor.grab_profile(ARGV.first)
